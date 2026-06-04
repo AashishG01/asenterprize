@@ -56,10 +56,14 @@ export default function VirtualRoom() {
     const px = state.pointer.x * 0.5;
     const py = state.pointer.y * 0.5;
 
+    // Offset the camera target UP so the room renders higher on the screen
+    // This perfectly counter-balances the UI overlay sitting at the bottom!
+    const cameraOffsetY = 1.2;
+
     state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, px, 0.03);
-    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY + py, 0.03);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY + py + cameraOffsetY, 0.03);
     state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 0.03);
-    state.camera.lookAt(0, targetY, 0);
+    state.camera.lookAt(0, targetY + cameraOffsetY, 0);
   });
 
   return (

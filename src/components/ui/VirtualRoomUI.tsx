@@ -76,58 +76,42 @@ export default function VirtualRoomUI() {
       </div>
 
       {/* Bottom Control Panel */}
-      <div className="relative z-10 mt-auto w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-40 pb-10 px-6 pointer-events-none">
+      <div className="relative z-10 mt-auto w-full bg-gradient-to-t from-black/95 via-black/80 to-transparent pt-16 pb-4 px-6 pointer-events-none">
         <div className="max-w-[1400px] mx-auto pointer-events-auto">
           
-          <div className="flex flex-col md:flex-row gap-12 items-end">
+          <div className="flex flex-col md:flex-row gap-8 items-end">
             
             {/* Left Controls: Room & Mood */}
-            <div className="w-full md:w-1/4 flex flex-col gap-8">
+            <div className="w-full md:w-1/4 flex flex-col gap-4">
               
               <div>
-                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Room Type</p>
-                <div className="grid grid-cols-2 gap-3">
+                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-2">Room Type</p>
+                <div className="grid grid-cols-2 gap-2">
                   {['Living', 'Bathroom', 'Kitchen', 'Commercial'].map((room) => (
                     <button 
                       key={room}
                       onClick={() => setActiveRoom(room as RoomType)}
-                      className={`py-3 text-[10px] font-bold uppercase tracking-widest border transition-all duration-500 rounded-sm shadow-lg ${activeRoom === room ? 'border-gold text-gold bg-gold/10' : 'border-white/10 text-marble-light bg-black/40 backdrop-blur-md hover:border-white/30'}`}
+                      className={`py-2 text-[9px] font-bold uppercase tracking-widest border transition-all duration-500 rounded-sm shadow-lg ${activeRoom === room ? 'border-gold text-gold bg-gold/10' : 'border-white/10 text-marble-light bg-black/40 backdrop-blur-md hover:border-white/30'}`}
                     >
                       {room}
                     </button>
                   ))}
                 </div>
               </div>
-
-              <div>
-                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Style Mood</p>
-                <div className="flex gap-6">
-                  {['Modern', 'Luxury', 'Minimal', 'Classic'].map((mood) => (
-                    <button 
-                      key={mood}
-                      onClick={() => setActiveMood(mood as MoodType)}
-                      className={`text-[10px] font-bold uppercase tracking-widest transition-all duration-500 pb-1 ${activeMood === mood ? 'text-marble-light border-b border-gold' : 'text-marble-dark hover:text-marble-light'}`}
-                    >
-                      {mood}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
             </div>
 
             {/* Right Controls: Sliders */}
-            <div className="w-full md:w-3/4 flex flex-col gap-8">
+            <div className="w-full md:w-3/4 flex flex-col gap-4">
               
               {/* Floor Slider */}
               <div>
-                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Floor Collection</p>
-                <div className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar">
+                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-2">Floor Collection</p>
+                <div className="flex gap-3 overflow-x-auto pb-2 snap-x hide-scrollbar">
                   {floors.map((floor: string) => (
                     <button 
                       key={floor}
                       onClick={() => setSelectedFloor(floor)}
-                      className={`flex-shrink-0 w-40 h-28 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-500 shadow-xl ${selectedFloor === floor ? 'border-gold scale-105 shadow-[0_0_30px_rgba(212,175,55,0.4)] z-10' : 'border-transparent hover:border-white/30'}`}
+                      className={`flex-shrink-0 w-24 h-16 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-500 shadow-xl ${selectedFloor === floor ? 'border-gold scale-105 shadow-[0_0_20px_rgba(212,175,55,0.4)] z-10' : 'border-transparent hover:border-white/30'}`}
                     >
                       <img src={floor} alt="Floor" className="w-full h-full object-cover" />
                     </button>
@@ -137,19 +121,19 @@ export default function VirtualRoomUI() {
 
               {/* Wall Slider */}
               <div>
-                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Wall Collection</p>
-                <div className="flex gap-4 overflow-x-auto pb-6 snap-x hide-scrollbar">
+                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-2">Wall Collection</p>
+                <div className="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar">
                   {prefixes.map((concept: string) => {
                     const previewUrl = concepts.find((c: string) => c.includes(`${concept}-LT`)) || concepts.find((c: string) => c.includes(`${concept}-DK`)) || concepts.find((c: string) => c.includes(`${concept}`));
                     return (
                       <button 
                         key={concept}
                         onClick={() => setSelectedConcept(concept)}
-                        className={`flex-shrink-0 w-28 h-40 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-500 shadow-xl ${selectedConcept === concept ? 'border-gold scale-105 shadow-[0_0_30px_rgba(212,175,55,0.4)] z-10' : 'border-transparent hover:border-white/30'}`}
+                        className={`flex-shrink-0 w-16 h-24 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-500 shadow-xl ${selectedConcept === concept ? 'border-gold scale-105 shadow-[0_0_20px_rgba(212,175,55,0.4)] z-10' : 'border-transparent hover:border-white/30'}`}
                       >
                         <img src={previewUrl} alt="Wall" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-3 opacity-0 hover:opacity-100 transition-opacity">
-                          <span className="text-[10px] font-bold text-marble-light uppercase tracking-widest">{concept}</span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-2 opacity-0 hover:opacity-100 transition-opacity">
+                          <span className="text-[8px] font-bold text-marble-light uppercase tracking-widest">{concept}</span>
                         </div>
                       </button>
                     );
