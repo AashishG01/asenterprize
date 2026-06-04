@@ -47,7 +47,7 @@ export default function VirtualRoomUI() {
   return (
     <section 
       ref={container} 
-      className="relative w-full h-screen bg-charcoal overflow-hidden flex flex-col font-sans"
+      className="relative w-full h-screen overflow-hidden flex flex-col font-sans"
     >
       {/* 3D Canvas Background Layer */}
       <div className="absolute inset-0 z-0 pointer-events-auto">
