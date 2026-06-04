@@ -64,10 +64,10 @@ export default function HeroEnvironment() {
 
       {/* Reflective Luxury Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
-        <planeGeometry args={[50, 50]} />
+        <planeGeometry args={[200, 200]} />
         <MeshReflectorMaterial
           map={colorMap}
-          blur={[300, 100]}
+          blur={[50, 50]}
           resolution={1024}
           mixBlur={1}
           mixStrength={80}
@@ -83,7 +83,7 @@ export default function HeroEnvironment() {
 
       {/* Back Wall */}
       <mesh position={[0, 5, -20]} receiveShadow>
-        <planeGeometry args={[50, 20]} />
+        <planeGeometry args={[200, 100]} />
         <meshStandardMaterial 
           map={wallMap}
           roughness={0.3}
