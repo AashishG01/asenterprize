@@ -42,9 +42,9 @@ export default function VirtualRoom() {
       t.wrapS = THREE.RepeatWrapping;
       t.wrapT = THREE.RepeatWrapping;
       if (viewMode === 'Product') {
-        t.repeat.set(24, 2); // Larger wall 12x6m
+        t.repeat.set(40, 13); // Wall is 12x6m, Tile is 300x450mm (12/0.3=40, 6/0.45=13.3)
       } else {
-        t.repeat.set(10, 1); // Room feature wall 10x3m
+        t.repeat.set(10, 1); // Room feature wall
       }
     });
   }, [viewMode, floorTex, wallLT, wallHL, wallDK]);

@@ -187,7 +187,7 @@ export function ScenePatio(props: any) {
 }
 
 // 6. Product View (Massive 12m x 6m wall, no distractions)
-export function SceneProductView({ floorTex, wallDK, wallHL, wallLT }: any) {
+export function SceneProductView({ floorTex, wallLT }: any) {
   // Pure product visualization
   const wallMat = (tex: any) => new THREE.MeshStandardMaterial({
     map: tex,
@@ -203,24 +203,11 @@ export function SceneProductView({ floorTex, wallDK, wallHL, wallLT }: any) {
 
   return (
     <group>
-      {/* Massive 12x6 Feature Wall */}
-      <group position={[0, 3, -2.25]}>
-        {/* Dark Base (40% = 2.4m) */}
-        <mesh position={[0, -1.8, 0]}>
-          <planeGeometry args={[12, 2.4]} />
-          <primitive object={wallMat(wallDK)} attach="material" />
-        </mesh>
-        {/* HL Middle (10% = 0.6m) */}
-        <mesh position={[0, -0.3, 0]}>
-          <planeGeometry args={[12, 0.6]} />
-          <primitive object={wallMat(wallHL)} attach="material" />
-        </mesh>
-        {/* Light Top (50% = 3m) */}
-        <mesh position={[0, 1.5, 0]}>
-          <planeGeometry args={[12, 3]} />
-          <primitive object={wallMat(wallLT)} attach="material" />
-        </mesh>
-      </group>
+      {/* Massive 12x6 Single Feature Wall */}
+      <mesh position={[0, 3, -2.25]}>
+        <planeGeometry args={[12, 6]} />
+        <primitive object={wallMat(wallLT)} attach="material" />
+      </mesh>
 
       {/* Floor Strip */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
