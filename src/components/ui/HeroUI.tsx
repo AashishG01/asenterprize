@@ -20,7 +20,7 @@ export default function HeroUI() {
   return (
     <section 
       ref={sectionRef} 
-      className="relative w-full h-[300vh] bg-[#111111]"
+      className="relative w-full h-[300vh]"
     >
       <div ref={stickyRef} className="sticky top-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden">
         
