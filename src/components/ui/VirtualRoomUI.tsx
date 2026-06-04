@@ -46,7 +46,7 @@ export default function VirtualRoomUI() {
     <section className="relative w-full h-screen bg-[#0a0a0a] overflow-hidden flex flex-col font-sans">
       
       {/* TOP 70%: 3D Canvas Dedicated Space (Zero UI Overlap with Floor) */}
-      <div ref={viewRef} className="w-full h-[70vh] relative z-0 pointer-events-auto cursor-grab active:cursor-grabbing border-b border-white/10 bg-black">
+      <div ref={viewRef} className="w-full h-[70vh] relative z-0 pointer-events-auto cursor-grab active:cursor-grabbing border-b border-white/10">
         <View track={viewRef} className="w-full h-full">
           <VirtualRoom />
         </View>
