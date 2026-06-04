@@ -21,7 +21,6 @@ export default function VirtualRoomUI() {
   const floors = manifest.floors;
 
   const [activeRoom, setActiveRoom] = useState<RoomType>('Living');
-  const [activeMood, setActiveMood] = useState<MoodType>('Luxury');
   const [selectedFloor, setSelectedFloor] = useState<string>(floors[0]);
   const [selectedConcept, setSelectedConcept] = useState<string>(prefixes.includes('10370') ? '10370' : prefixes[0]);
 
@@ -37,12 +36,11 @@ export default function VirtualRoomUI() {
         lt: validLT,
         dk: validDK,
         hl: validHL,
-        room: activeRoom,
-        mood: activeMood
+        room: activeRoom
       } 
     });
     window.dispatchEvent(event);
-  }, [selectedFloor, selectedConcept, activeRoom, activeMood]);
+  }, [selectedFloor, selectedConcept, activeRoom]);
 
   return (
     <section 
