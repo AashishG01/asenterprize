@@ -31,31 +31,35 @@ export default function VirtualRoom() {
   const wallHL = useTexture(hlUrl || defaultWall);
   const wallDK = useTexture(dkUrl || defaultWall);
 
-  // 5m x 4.5m room scale textures
+  // Infinite Floor (20m x 20m)
   floorTex.wrapS = THREE.RepeatWrapping;
   floorTex.wrapT = THREE.RepeatWrapping;
-  floorTex.repeat.set(5, 4.5); 
+  floorTex.repeat.set(20, 20); 
 
   [wallLT, wallHL, wallDK].forEach(t => {
     t.wrapS = THREE.RepeatWrapping;
     t.wrapT = THREE.RepeatWrapping;
-    t.repeat.set(5, 1);
+    // Feature wall is expanded to 10m wide x 3m tall. Tile is 0.3x0.45m
+    t.repeat.set(10, 1);
   });
 
-  // Human Eye Camera: Y=1.55m, Distance=4.5m, Angle=-10deg
+  // Human Eye Camera: Placed INSIDE the room!
+  // Y=1.0 (sitting/low standing), Distance Z=1.2 (deep inside), X=1.2 (right side)
   useFrame((state) => {
-    const targetY = 1.55; 
-    const targetZ = 4.5; 
+    const targetX = 1.2;
+    const targetY = 1.0; 
+    const targetZ = 1.2; 
 
-    const px = state.pointer.x * 0.1;
-    const py = state.pointer.y * 0.1;
+    const px = state.pointer.x * 0.15;
+    const py = state.pointer.y * 0.15;
 
-    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, px, 0.05);
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, targetX + px, 0.05);
     state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY + py, 0.05);
     state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 0.05);
     
-    // Look at center floor (Y=0.8 creates roughly -10 degree downward angle)
-    state.camera.lookAt(0, 0.8, 0); 
+    // Look at the feature wall (z=-2.25), slightly left (x=-0.8), and down (y=0.5)
+    // This creates the perfect corner shot where Floor = 50%, Feature Wall = 40%, Side Wall = 10%
+    state.camera.lookAt(-0.8, 0.5, -2.25); 
   });
 
   return (
