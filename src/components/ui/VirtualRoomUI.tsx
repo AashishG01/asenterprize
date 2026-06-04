@@ -7,7 +7,7 @@ import manifest from '../../utils/manifest.json';
 export type RoomType = 'Living' | 'Bathroom' | 'Kitchen' | 'Commercial' | 'Patio';
 
 export default function VirtualRoomUI() {
-  const viewRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<any>(null);
   
   // Extract unique concept prefixes from manifest
   const concepts = manifest.concepts;
