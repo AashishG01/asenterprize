@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Environment, useTexture } from '@react-three/drei';
+import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
-import { SceneLivingRoom, SceneBathroom, SceneKitchen, SceneCommercial, ScenePatio, SceneProductView } from './LuxuryScenes';
+import { SceneProductView } from './LuxuryScenes';
 
 export default function VirtualRoom() {
-  const [viewMode, setViewMode] = useState('Product');
-  const [activeRoom, setActiveRoom] = useState('Living');
   const [floorUrl, setFloorUrl] = useState('');
   const [ltUrl, setLtUrl] = useState('');
   const [hlUrl, setHlUrl] = useState('');
@@ -18,8 +16,6 @@ export default function VirtualRoom() {
       if (e.detail.lt) setLtUrl(e.detail.lt);
       if (e.detail.hl) setHlUrl(e.detail.hl);
       if (e.detail.dk) setDkUrl(e.detail.dk);
-      if (e.detail.room) setActiveRoom(e.detail.room);
-      if (e.detail.mode) setViewMode(e.detail.mode);
     };
     window.addEventListener('update-virtual-room', handleUpdate);
     return () => window.removeEventListener('update-virtual-room', handleUpdate);
@@ -36,75 +32,48 @@ export default function VirtualRoom() {
   useEffect(() => {
     floorTex.wrapS = THREE.RepeatWrapping;
     floorTex.wrapT = THREE.RepeatWrapping;
-    floorTex.repeat.set(20, 20); 
+    // Floor is 16m wide, 4m deep. Tile is 600x1200mm (0.6x1.2m)
+    floorTex.repeat.set(16 / 0.6, 4 / 1.2); 
 
     [wallLT, wallHL, wallDK].forEach(t => {
       t.wrapS = THREE.RepeatWrapping;
       t.wrapT = THREE.RepeatWrapping;
-      if (viewMode === 'Product') {
-        t.repeat.set(40, 13); // Wall is 12x6m, Tile is 300x450mm (12/0.3=40, 6/0.45=13.3)
-      } else {
-        t.repeat.set(10, 1); // Room feature wall
-      }
+      // Wall is 16m wide, 8m tall. Tile is 300x450mm (0.3x0.45m)
+      t.repeat.set(16 / 0.3, 8 / 0.45); 
     });
-  }, [viewMode, floorTex, wallLT, wallHL, wallDK]);
+  }, [floorTex, wallLT, wallHL, wallDK]);
 
   useFrame((state) => {
-    if (viewMode === 'Product') {
-      // Direct front-on orthographic-style framing
-      const targetX = 0;
-      const targetY = 2.5; 
-      const targetZ = 3.2; // Push back to frame 80% Wall, 20% Floor
-      
-      state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, targetX, 0.08);
-      state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY, 0.08);
-      state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 0.08);
-      state.camera.lookAt(0, 1.8, -2.25); // Look mostly straight ahead at the wall
-      
-    } else {
-      // Human Eye Camera: Placed INSIDE the room!
-      const targetX = 1.2;
-      const targetY = 1.0; 
-      const targetZ = 1.2; 
-
-      const px = state.pointer.x * 0.15;
-      const py = state.pointer.y * 0.15;
-
-      state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, targetX + px, 0.05);
-      state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY + py, 0.05);
-      state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 0.05);
-      
-      // Look at the feature wall (z=-2.25), slightly left (x=-0.8), and down (y=0.5)
-      state.camera.lookAt(-0.8, 0.5, -2.25); 
-    }
+    // Direct front-on orthographic-style framing
+    const targetX = 0;
+    const targetY = 2.5; 
+    const targetZ = 3.6; // Push back to frame 75-80% Wall, 5-10% Floor Strip
+    
+    // Slight parallax
+    const px = state.pointer.x * 0.05;
+    const py = state.pointer.y * 0.05;
+    
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, targetX + px, 0.08);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetY + py, 0.08);
+    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetZ, 0.08);
+    
+    // Look straight ahead at the wall
+    state.camera.lookAt(px, 1.8 + py, -2.25); 
   });
 
   return (
     <>
-      {viewMode === 'Room' && <Environment preset="apartment" environmentIntensity={0.3} />}
-      
-      <ambientLight intensity={viewMode === 'Product' ? 1.5 : 1.2} color="#ffffff" />
+      <ambientLight intensity={1.5} color="#ffffff" />
       
       <directionalLight 
-        position={viewMode === 'Product' ? [0, 5, 3] : [8, 4, 1]} 
-        intensity={viewMode === 'Product' ? 2 : 3} 
+        position={[0, 5, 3]} 
+        intensity={2} 
         color="#fff5e6" 
-        castShadow={viewMode === 'Room'} 
         shadow-mapSize={[1024, 1024]} 
         shadow-bias={-0.0001}
       />
       
-      {viewMode === 'Product' ? (
-        <SceneProductView floorTex={floorTex} wallDK={wallDK} wallHL={wallHL} wallLT={wallLT} />
-      ) : (
-        <>
-          {activeRoom === 'Living' && <SceneLivingRoom floorTex={floorTex} wallDK={wallDK} wallHL={wallHL} wallLT={wallLT} />}
-          {activeRoom === 'Bathroom' && <SceneBathroom floorTex={floorTex} wallDK={wallDK} wallHL={wallHL} wallLT={wallLT} />}
-          {activeRoom === 'Kitchen' && <SceneKitchen floorTex={floorTex} wallDK={wallDK} wallHL={wallHL} wallLT={wallLT} />}
-          {activeRoom === 'Commercial' && <SceneCommercial floorTex={floorTex} wallDK={wallDK} wallHL={wallHL} wallLT={wallLT} />}
-          {activeRoom === 'Patio' && <ScenePatio floorTex={floorTex} wallDK={wallDK} wallHL={wallHL} wallLT={wallLT} />}
-        </>
-      )}
+      <SceneProductView floorTex={floorTex} wallLT={wallLT} />
     </>
   );
 }

@@ -4,23 +4,15 @@ import VirtualRoom from '../canvas/VirtualRoom';
 // @ts-ignore
 import manifest from '../../utils/manifest.json';
 
-export type ViewMode = 'Product' | 'Room';
-export type RoomType = 'Living' | 'Bathroom' | 'Kitchen' | 'Commercial' | 'Patio';
-
 export default function VirtualRoomUI() {
   const viewRef = useRef<any>(null);
   
   // Extract unique concept prefixes from manifest
   const concepts = manifest.concepts;
-  const prefixes = Array.from(new Set(concepts.map((c: string) => {
-    const filename = c.split('/').pop()?.replace('.jpg', '') || '';
-    return filename.split('-')[0];
-  })));
+  const prefixes = Array.from(new Set(concepts.map((c: string) => c.split('-')[0])));
 
   const floors = manifest.floors;
 
-  const [viewMode, setViewMode] = useState<ViewMode>('Product');
-  const [activeRoom, setActiveRoom] = useState<RoomType>('Living');
   const [selectedFloor, setSelectedFloor] = useState<string>(floors[0]);
   const [selectedConcept, setSelectedConcept] = useState<string>(prefixes.includes('10370') ? '10370' : prefixes[0]);
 
@@ -35,13 +27,11 @@ export default function VirtualRoomUI() {
         floor: selectedFloor, 
         lt: validLT,
         dk: validDK,
-        hl: validHL,
-        room: activeRoom,
-        mode: viewMode
+        hl: validHL
       } 
     });
     window.dispatchEvent(event);
-  }, [selectedFloor, selectedConcept, activeRoom, viewMode]);
+  }, [selectedFloor, selectedConcept]);
 
   const formatName = (str: string) => str.split('/').pop()?.replace('.jpg', '').replace(/-/g, ' ') || 'Luxury Tile';
 
@@ -88,73 +78,45 @@ export default function VirtualRoomUI() {
 
       {/* BOTTOM 30%: Control Panel */}
       <div className="w-full h-[30vh] bg-[#0a0a0a] relative z-10 p-6 flex flex-col justify-center">
-        <div className="max-w-[1600px] w-full mx-auto flex flex-col md:flex-row gap-8 items-center h-full">
+        <div className="max-w-[1600px] w-full mx-auto flex flex-col h-full justify-center gap-6">
             
-          {/* Left Controls: Architecture */}
-          <div className="w-full md:w-1/5 flex flex-col h-full justify-center">
+          {/* Right Controls: Tile Collections (Now Full Width) */}
+          <div className="w-full flex flex-col gap-6">
             
-            <div className="mb-6 flex rounded-sm overflow-hidden border border-white/20 shadow-2xl">
-              <button 
-                onClick={() => setViewMode('Product')}
-                className={`flex-1 py-2 text-[9px] font-bold uppercase tracking-widest transition-colors ${viewMode === 'Product' ? 'bg-gold text-black' : 'bg-black/50 text-marble-light hover:bg-white/10'}`}
-              >
-                Product
-              </button>
-              <button 
-                onClick={() => setViewMode('Room')}
-                className={`flex-1 py-2 text-[9px] font-bold uppercase tracking-widest transition-colors ${viewMode === 'Room' ? 'bg-gold text-black' : 'bg-black/50 text-marble-light hover:bg-white/10'}`}
-              >
-                Room
-              </button>
-            </div>
-
-            <p className={`text-[10px] uppercase tracking-[0.3em] mb-4 transition-colors ${viewMode === 'Room' ? 'text-marble-dark' : 'text-marble-dark/30'}`}>Architecture</p>
-            <div className="flex flex-col gap-2">
-              {['Living', 'Bathroom', 'Kitchen', 'Commercial', 'Patio'].map((room) => (
-                <button 
-                  key={room}
-                  disabled={viewMode !== 'Room'}
-                  onClick={() => setActiveRoom(room as RoomType)}
-                  className={`py-2 text-[10px] font-bold uppercase tracking-widest border transition-all duration-300 rounded-sm ${activeRoom === room && viewMode === 'Room' ? 'border-gold text-gold bg-gold/10' : 'border-white/5 text-marble-light bg-[#111] hover:border-white/20 disabled:opacity-30 disabled:pointer-events-none'}`}
-                >
-                  {room === 'Commercial' ? 'Lobby' : room}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Controls: Sliders */}
-          <div className="w-full md:w-4/5 flex flex-col gap-6 h-full justify-center">
-            
-            {/* Floor Slider */}
+            {/* Floors */}
             <div>
               <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-3">Floor Surface (600x1200)</p>
-              <div className="flex gap-4 overflow-x-auto pb-2 snap-x hide-scrollbar items-center">
-                {floors.map((floor: string) => (
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                {floors.map((url: string, i: number) => (
                   <button 
-                    key={floor}
-                    onClick={() => setSelectedFloor(floor)}
-                    className={`flex-shrink-0 w-32 h-20 md:w-40 md:h-24 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-300 shadow-xl ${selectedFloor === floor ? 'border-gold scale-105 shadow-[0_0_20px_rgba(212,175,55,0.2)]' : 'border-transparent hover:border-white/30'}`}
+                    key={i}
+                    onClick={() => setSelectedFloor(url)}
+                    className={`shrink-0 snap-start relative group transition-all duration-300 ${selectedFloor === url ? 'ring-1 ring-gold ring-offset-2 ring-offset-black scale-105 shadow-2xl z-10' : 'hover:ring-1 hover:ring-white/30 hover:scale-105 opacity-60 hover:opacity-100'}`}
                   >
-                    <img src={floor} alt="Floor" className="w-full h-full object-cover" />
+                    <img src={url} alt={`Floor ${i}`} className="h-24 w-auto object-cover rounded-sm" />
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors pointer-events-none" />
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Wall Slider */}
+            {/* Walls */}
             <div>
               <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-3">Feature Wall (300x450)</p>
-              <div className="flex gap-4 overflow-x-auto pb-2 snap-x hide-scrollbar items-center">
-                {prefixes.map((concept: string) => {
-                  const previewUrl = concepts.find((c: string) => c.includes(`${concept}-LT`)) || concepts.find((c: string) => c.includes(`${concept}-DK`)) || concepts.find((c: string) => c.includes(`${concept}`));
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                {prefixes.map((prefix: string, i: number) => {
+                  const representativeImg = concepts.find((c: string) => c.includes(prefix + '-LT.jpg')) 
+                    || concepts.find((c: string) => c.includes(prefix + '-DK.jpg'))
+                    || concepts.find((c: string) => c.includes(prefix));
+                  
                   return (
                     <button 
-                      key={concept}
-                      onClick={() => setSelectedConcept(concept)}
-                      className={`flex-shrink-0 w-20 h-28 md:w-24 md:h-32 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-300 shadow-xl ${selectedConcept === concept ? 'border-gold scale-105 shadow-[0_0_20px_rgba(212,175,55,0.2)]' : 'border-transparent hover:border-white/30'}`}
+                      key={i}
+                      onClick={() => setSelectedConcept(prefix)}
+                      className={`shrink-0 snap-start relative group transition-all duration-300 ${selectedConcept === prefix ? 'ring-1 ring-gold ring-offset-2 ring-offset-black scale-105 shadow-2xl z-10' : 'hover:ring-1 hover:ring-white/30 hover:scale-105 opacity-60 hover:opacity-100'}`}
                     >
-                      <img src={previewUrl} alt="Wall" className="w-full h-full object-cover" />
+                      <img src={representativeImg} alt={`Wall ${prefix}`} className="h-28 w-auto object-cover rounded-sm" />
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors pointer-events-none" />
                     </button>
                   );
                 })}
