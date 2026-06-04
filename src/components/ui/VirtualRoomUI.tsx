@@ -1,9 +1,12 @@
 import { useRef, useState, useEffect } from 'react';
 import { View } from '@react-three/drei';
 import VirtualRoom from '../canvas/VirtualRoom';
-import { motion } from 'framer-motion';
+
 // @ts-ignore
 import manifest from '../../utils/manifest.json';
+
+export type RoomType = 'Living' | 'Bathroom' | 'Kitchen' | 'Commercial';
+export type MoodType = 'Modern' | 'Luxury' | 'Minimal' | 'Classic';
 
 export default function VirtualRoomUI() {
   const container = useRef<any>(null);
@@ -15,116 +18,160 @@ export default function VirtualRoomUI() {
     return filename.split('-')[0];
   })));
 
-  const [activeFloorPage, setActiveFloorPage] = useState(0);
-  const [activeConceptPage, setActiveConceptPage] = useState(0);
-  
   const floors = manifest.floors;
-  const floorsPerPage = 5;
-  const conceptsPerPage = 5;
 
-  const currentFloors = floors.slice(activeFloorPage * floorsPerPage, (activeFloorPage + 1) * floorsPerPage);
-  const currentConcepts = prefixes.slice(activeConceptPage * conceptsPerPage, (activeConceptPage + 1) * conceptsPerPage);
-
+  const [activeRoom, setActiveRoom] = useState<RoomType>('Living');
+  const [activeMood, setActiveMood] = useState<MoodType>('Luxury');
   const [selectedFloor, setSelectedFloor] = useState<string>(floors[0]);
   const [selectedConcept, setSelectedConcept] = useState<string>(prefixes.includes('10370') ? '10370' : prefixes[0]);
-  
+
+  // Sync state with 3D Canvas via CustomEvent
   useEffect(() => {
+    const validLT = concepts.find((c: string) => c.includes(`${selectedConcept}-LT`)) || concepts.find((c: string) => c.includes(`${selectedConcept}`));
+    const validDK = concepts.find((c: string) => c.includes(`${selectedConcept}-DK`)) || validLT;
+    const validHL = concepts.find((c: string) => c.includes(`${selectedConcept}-HL`)) || validLT;
+
     const event = new CustomEvent('update-virtual-room', { 
-      detail: { floor: selectedFloor, concept: selectedConcept } 
+      detail: { 
+        floor: selectedFloor, 
+        lt: validLT,
+        dk: validDK,
+        hl: validHL,
+        room: activeRoom,
+        mood: activeMood
+      } 
     });
     window.dispatchEvent(event);
-  }, [selectedFloor, selectedConcept]);
+  }, [selectedFloor, selectedConcept, activeRoom, activeMood]);
 
   return (
     <section 
       ref={container} 
-      className="relative w-full min-h-screen py-32 text-marble-light flex flex-col md:flex-row items-center overflow-hidden"
+      className="relative w-full h-screen bg-charcoal overflow-hidden flex flex-col font-sans"
     >
-      {/* 3D Canvas View on the left/top */}
-      <div className="w-full md:w-2/3 h-[50vh] md:h-screen relative z-0 pointer-events-auto cursor-grab active:cursor-grabbing">
+      {/* 3D Canvas Background Layer */}
+      <div className="absolute inset-0 z-0 pointer-events-auto">
         <View track={container} className="w-full h-full">
           <VirtualRoom />
         </View>
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs uppercase tracking-widest text-white/50 bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">
-          Drag to look around
+      </div>
+
+      {/* Top Header - Luxury Studio Style */}
+      <div className="relative z-10 w-full p-6 flex justify-between items-start pointer-events-none">
+        <div className="pointer-events-auto bg-black/40 backdrop-blur-xl px-8 py-5 rounded-sm border border-white/10 shadow-2xl">
+          <h1 className="text-xl md:text-3xl font-serif text-marble-light uppercase tracking-widest leading-none">
+            Aashish Enterprises
+          </h1>
+          <p className="text-[10px] text-gold uppercase tracking-[0.4em] mt-2">Design Studio</p>
+        </div>
+        
+        <div className="hidden md:flex pointer-events-auto gap-4">
+          <button className="px-8 py-3 bg-marble-light text-charcoal font-bold text-xs tracking-widest uppercase hover:bg-gold hover:text-white transition-colors duration-500 rounded-sm shadow-xl">
+            Save Design
+          </button>
+          <button className="px-8 py-3 bg-black/40 border border-marble-light/50 text-marble-light font-bold text-xs tracking-widest uppercase hover:border-gold hover:text-gold transition-colors duration-500 rounded-sm backdrop-blur-xl shadow-xl">
+            Get Quote
+          </button>
         </div>
       </div>
 
-      {/* Controls on the right/bottom */}
-      <div className="w-full md:w-1/3 h-[50vh] md:h-screen bg-charcoal-light/50 backdrop-blur-lg border-l border-white/10 p-8 flex flex-col justify-center overflow-y-auto relative z-10">
-        
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-serif mb-2 text-gold">Experience Center</h2>
-          <p className="text-sm text-marble-dark mb-10">Select premium floors and signature wall concepts to visualize your space.</p>
+      {/* Bottom Control Panel */}
+      <div className="relative z-10 mt-auto w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-40 pb-10 px-6 pointer-events-none">
+        <div className="max-w-[1400px] mx-auto pointer-events-auto">
           
-          {/* Floor Selection */}
-          <div className="mb-10">
-            <div className="flex justify-between items-end mb-4">
-              <h3 className="uppercase tracking-widest text-sm font-medium border-b border-gold/30 pb-2 flex-grow">1. Select Floor</h3>
-              <div className="flex gap-2 ml-4">
-                <button onClick={() => setActiveFloorPage(p => Math.max(0, p - 1))} className="text-xl px-2 opacity-50 hover:opacity-100">&larr;</button>
-                <button onClick={() => setActiveFloorPage(p => Math.min(Math.floor(floors.length/floorsPerPage), p + 1))} className="text-xl px-2 opacity-50 hover:opacity-100">&rarr;</button>
-              </div>
-            </div>
+          <div className="flex flex-col md:flex-row gap-12 items-end">
             
-            <div className="grid grid-cols-5 gap-2">
-              {currentFloors.map((floor: string) => {
-                const isSelected = selectedFloor === floor;
-                return (
-                  <button 
-                    key={floor}
-                    onClick={() => setSelectedFloor(floor)}
-                    className={`aspect-square relative overflow-hidden border-2 transition-all duration-300 ${isSelected ? 'border-gold scale-105' : 'border-transparent hover:border-white/20'}`}
-                  >
-                    <img src={floor} alt="Floor preview" className="w-full h-full object-cover" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Wall Concept Selection */}
-          <div className="mb-6">
-            <div className="flex justify-between items-end mb-4">
-              <h3 className="uppercase tracking-widest text-sm font-medium border-b border-gold/30 pb-2 flex-grow">2. Select Wall Concept</h3>
-              <div className="flex gap-2 ml-4">
-                <button onClick={() => setActiveConceptPage(p => Math.max(0, p - 1))} className="text-xl px-2 opacity-50 hover:opacity-100">&larr;</button>
-                <button onClick={() => setActiveConceptPage(p => Math.min(Math.floor(prefixes.length/conceptsPerPage), p + 1))} className="text-xl px-2 opacity-50 hover:opacity-100">&rarr;</button>
+            {/* Left Controls: Room & Mood */}
+            <div className="w-full md:w-1/4 flex flex-col gap-8">
+              
+              <div>
+                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Room Type</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Living', 'Bathroom', 'Kitchen', 'Commercial'].map((room) => (
+                    <button 
+                      key={room}
+                      onClick={() => setActiveRoom(room as RoomType)}
+                      className={`py-3 text-[10px] font-bold uppercase tracking-widest border transition-all duration-500 rounded-sm shadow-lg ${activeRoom === room ? 'border-gold text-gold bg-gold/10' : 'border-white/10 text-marble-light bg-black/40 backdrop-blur-md hover:border-white/30'}`}
+                    >
+                      {room}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              <div>
+                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Style Mood</p>
+                <div className="flex gap-6">
+                  {['Modern', 'Luxury', 'Minimal', 'Classic'].map((mood) => (
+                    <button 
+                      key={mood}
+                      onClick={() => setActiveMood(mood as MoodType)}
+                      className={`text-[10px] font-bold uppercase tracking-widest transition-all duration-500 pb-1 ${activeMood === mood ? 'text-marble-light border-b border-gold' : 'text-marble-dark hover:text-marble-light'}`}
+                    >
+                      {mood}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
             </div>
-            
-            <div className="grid grid-cols-5 gap-2">
-              {currentConcepts.map((concept: string) => {
-                const isSelected = selectedConcept === concept;
-                // Preview using LT or DK if available
-                const previewUrl = concepts.find((c: string) => c.includes(`${concept}-LT`)) || concepts.find((c: string) => c.includes(`${concept}-DK`)) || concepts.find((c: string) => c.includes(`${concept}`));
-                return (
-                  <button 
-                    key={concept}
-                    onClick={() => setSelectedConcept(concept)}
-                    className={`aspect-[2/3] relative overflow-hidden border-2 transition-all duration-300 ${isSelected ? 'border-gold scale-105' : 'border-transparent hover:border-white/20'}`}
-                  >
-                    <img src={previewUrl} alt="Concept preview" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                      <span className="text-[10px] font-bold tracking-wider">{concept}</span>
-                    </div>
-                  </button>
-                );
-              })}
+
+            {/* Right Controls: Sliders */}
+            <div className="w-full md:w-3/4 flex flex-col gap-8">
+              
+              {/* Floor Slider */}
+              <div>
+                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Floor Collection</p>
+                <div className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar">
+                  {floors.map((floor: string) => (
+                    <button 
+                      key={floor}
+                      onClick={() => setSelectedFloor(floor)}
+                      className={`flex-shrink-0 w-40 h-28 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-500 shadow-xl ${selectedFloor === floor ? 'border-gold scale-105 shadow-[0_0_30px_rgba(212,175,55,0.4)] z-10' : 'border-transparent hover:border-white/30'}`}
+                    >
+                      <img src={floor} alt="Floor" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Wall Slider */}
+              <div>
+                <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Wall Collection</p>
+                <div className="flex gap-4 overflow-x-auto pb-6 snap-x hide-scrollbar">
+                  {prefixes.map((concept: string) => {
+                    const previewUrl = concepts.find((c: string) => c.includes(`${concept}-LT`)) || concepts.find((c: string) => c.includes(`${concept}-DK`)) || concepts.find((c: string) => c.includes(`${concept}`));
+                    return (
+                      <button 
+                        key={concept}
+                        onClick={() => setSelectedConcept(concept)}
+                        className={`flex-shrink-0 w-28 h-40 snap-start relative overflow-hidden rounded-sm border-2 transition-all duration-500 shadow-xl ${selectedConcept === concept ? 'border-gold scale-105 shadow-[0_0_30px_rgba(212,175,55,0.4)] z-10' : 'border-transparent hover:border-white/30'}`}
+                      >
+                        <img src={previewUrl} alt="Wall" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-3 opacity-0 hover:opacity-100 transition-opacity">
+                          <span className="text-[10px] font-bold text-marble-light uppercase tracking-widest">{concept}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <div className="mt-8 p-4 bg-charcoal/50 border border-white/5 rounded-lg">
-             <p className="text-xs text-marble-dark">Wall Concepts automatically map Dark (DK), Highlighter (HL), and Light (LT) tiles to create a perfect luxury composition.</p>
-          </div>
-
-        </motion.div>
+        </div>
       </div>
+      
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </section>
   );
 }
