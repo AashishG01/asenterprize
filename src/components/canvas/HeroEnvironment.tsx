@@ -1,6 +1,5 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { SoftShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import MonumentSlab from './MonumentSlab';
 
@@ -41,7 +40,6 @@ export default function HeroEnvironment() {
 
   return (
     <>
-      <SoftShadows size={30} samples={16} focus={0.5} />
       {/* Subtle volumetric fog to hide the background gracefully */}
       <fog attach="fog" args={['#111111', 10, 30]} />
       
