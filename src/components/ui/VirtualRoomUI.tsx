@@ -4,6 +4,7 @@ import VirtualRoom from '../canvas/VirtualRoom';
 // @ts-ignore
 import manifest from '../../utils/manifest.json';
 
+export type ViewMode = 'Product' | 'Room';
 export type RoomType = 'Living' | 'Bathroom' | 'Kitchen' | 'Commercial' | 'Patio';
 
 export default function VirtualRoomUI() {
@@ -18,6 +19,7 @@ export default function VirtualRoomUI() {
 
   const floors = manifest.floors;
 
+  const [viewMode, setViewMode] = useState<ViewMode>('Product');
   const [activeRoom, setActiveRoom] = useState<RoomType>('Living');
   const [selectedFloor, setSelectedFloor] = useState<string>(floors[0]);
   const [selectedConcept, setSelectedConcept] = useState<string>(prefixes.includes('10370') ? '10370' : prefixes[0]);
@@ -34,11 +36,12 @@ export default function VirtualRoomUI() {
         lt: validLT,
         dk: validDK,
         hl: validHL,
-        room: activeRoom
+        room: activeRoom,
+        mode: viewMode
       } 
     });
     window.dispatchEvent(event);
-  }, [selectedFloor, selectedConcept, activeRoom]);
+  }, [selectedFloor, selectedConcept, activeRoom, viewMode]);
 
   const formatName = (str: string) => str.split('/').pop()?.replace('.jpg', '').replace(/-/g, ' ') || 'Luxury Tile';
 
@@ -87,15 +90,32 @@ export default function VirtualRoomUI() {
       <div className="w-full h-[30vh] bg-[#0a0a0a] relative z-10 p-6 flex flex-col justify-center">
         <div className="max-w-[1600px] w-full mx-auto flex flex-col md:flex-row gap-8 items-center h-full">
             
-          {/* Left Controls: Room */}
+          {/* Left Controls: Architecture */}
           <div className="w-full md:w-1/5 flex flex-col h-full justify-center">
-            <p className="text-[10px] text-marble-dark uppercase tracking-[0.3em] mb-4">Architecture</p>
+            
+            <div className="mb-6 flex rounded-sm overflow-hidden border border-white/20 shadow-2xl">
+              <button 
+                onClick={() => setViewMode('Product')}
+                className={`flex-1 py-2 text-[9px] font-bold uppercase tracking-widest transition-colors ${viewMode === 'Product' ? 'bg-gold text-black' : 'bg-black/50 text-marble-light hover:bg-white/10'}`}
+              >
+                Product
+              </button>
+              <button 
+                onClick={() => setViewMode('Room')}
+                className={`flex-1 py-2 text-[9px] font-bold uppercase tracking-widest transition-colors ${viewMode === 'Room' ? 'bg-gold text-black' : 'bg-black/50 text-marble-light hover:bg-white/10'}`}
+              >
+                Room
+              </button>
+            </div>
+
+            <p className={`text-[10px] uppercase tracking-[0.3em] mb-4 transition-colors ${viewMode === 'Room' ? 'text-marble-dark' : 'text-marble-dark/30'}`}>Architecture</p>
             <div className="flex flex-col gap-2">
               {['Living', 'Bathroom', 'Kitchen', 'Commercial', 'Patio'].map((room) => (
                 <button 
                   key={room}
+                  disabled={viewMode !== 'Room'}
                   onClick={() => setActiveRoom(room as RoomType)}
-                  className={`py-2 text-[10px] font-bold uppercase tracking-widest border transition-all duration-300 rounded-sm ${activeRoom === room ? 'border-gold text-gold bg-gold/10' : 'border-white/5 text-marble-light bg-[#111] hover:border-white/20'}`}
+                  className={`py-2 text-[10px] font-bold uppercase tracking-widest border transition-all duration-300 rounded-sm ${activeRoom === room && viewMode === 'Room' ? 'border-gold text-gold bg-gold/10' : 'border-white/5 text-marble-light bg-[#111] hover:border-white/20 disabled:opacity-30 disabled:pointer-events-none'}`}
                 >
                   {room === 'Commercial' ? 'Lobby' : room}
                 </button>

@@ -185,3 +185,48 @@ export function ScenePatio(props: any) {
     </EnclosedArchitecture>
   );
 }
+
+// 6. Product View (Massive 12m x 6m wall, no distractions)
+export function SceneProductView({ floorTex, wallDK, wallHL, wallLT }: any) {
+  // Pure product visualization
+  const wallMat = (tex: any) => new THREE.MeshStandardMaterial({
+    map: tex,
+    roughness: 0.8, // Matte
+    metalness: 0,
+  });
+  
+  const floorMat = new THREE.MeshStandardMaterial({
+    map: floorTex,
+    roughness: 0.8, // Matte
+    metalness: 0,
+  });
+
+  return (
+    <group>
+      {/* Massive 12x6 Feature Wall */}
+      <group position={[0, 3, -2.25]}>
+        {/* Dark Base (40% = 2.4m) */}
+        <mesh position={[0, -1.8, 0]}>
+          <planeGeometry args={[12, 2.4]} />
+          <primitive object={wallMat(wallDK)} attach="material" />
+        </mesh>
+        {/* HL Middle (10% = 0.6m) */}
+        <mesh position={[0, -0.3, 0]}>
+          <planeGeometry args={[12, 0.6]} />
+          <primitive object={wallMat(wallHL)} attach="material" />
+        </mesh>
+        {/* Light Top (50% = 3m) */}
+        <mesh position={[0, 1.5, 0]}>
+          <planeGeometry args={[12, 3]} />
+          <primitive object={wallMat(wallLT)} attach="material" />
+        </mesh>
+      </group>
+
+      {/* Floor Strip */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <planeGeometry args={[12, 4.5]} />
+        <primitive object={floorMat} attach="material" />
+      </mesh>
+    </group>
+  );
+}
