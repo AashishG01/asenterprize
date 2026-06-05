@@ -16,7 +16,7 @@ export default function Scene() {
           pointerEvents: 'none',
         }}
         gl={{ antialias: false, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 0, 5], fov: 45 }}
+        camera={{ position: [0, 0, 8], fov: 28 }}
         eventSource={document.getElementById('root')!}
         className="canvas-container"
       >
